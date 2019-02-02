@@ -1,11 +1,13 @@
 const WebSocket = require('ws')
 
-const wss = new WebSocket.Server({ port: 8082 })
-
+var WebSocketServer = WebSocket.Server,
+    wss = new WebSocketServer({port: 8082}),
+    CLIENTS=[];
 wss.on('connection', (ws, req) => {
+  CLIENTS.push(ws)
   ws.on('message', message => {
     console.log(`Received message => ${message}`)
-    console.log(req)
+    console.log(CLIENTS)
   })
   ws.send('ho!')
 })
