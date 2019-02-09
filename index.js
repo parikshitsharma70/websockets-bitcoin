@@ -44,6 +44,7 @@ wsServer.on('request', function(request) {
   var connection = request.accept(null, request.origin); 
   
   connection.uuid = uuid.v4();
+  clients.push(connection)
   console.log((new Date()) + ' Connection accepted.');
 
   connection.on('message', function(message) {
@@ -148,6 +149,7 @@ function checkAndStream(data) {
       var elementPos = clients.map(function (x) {
         return x.uuid;
       }).indexOf(uuid);
+      // console.log(clients)
       clients[elementPos].send('tx', data);
   });
 };
