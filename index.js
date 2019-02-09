@@ -37,7 +37,7 @@ server.listen(webSocketsServerPort, function() {
 var wsServer = new webSocketServer({
   httpServer: server
 });
- 
+
 wsServer.on('request', function(request) {
   console.log((new Date()) + ' Connection from origin '
       + request.origin + '.')
@@ -48,7 +48,6 @@ wsServer.on('request', function(request) {
 
   connection.on('message', function(message) {
     console.log((new Date()) + " client_uuid : "+ connection.uuid)
-    console.log((new Date()) + " Index : " + index)
     console.log((new Date()) + " Addresses : " + util.inspect(message, false, null, true))
     var found = clientData.some(function (e) {
       return e.uuid == connection.uuid;
