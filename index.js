@@ -44,12 +44,9 @@ wsServer.on('request', function(request) {
   var connection = request.accept(null, request.origin); 
   
   connection.uuid = uuid.v4();
-  var index = clients.push(connection) - 1;
-  
   console.log((new Date()) + ' Connection accepted.');
 
   connection.on('message', function(message) {
-    clients[0].send('Test')
     console.log((new Date()) + " client_uuid : "+ connection.uuid)
     console.log((new Date()) + " Index : " + index)
     console.log((new Date()) + " Addresses : " + util.inspect(message, false, null, true))
@@ -71,8 +68,8 @@ wsServer.on('request', function(request) {
       if(clientData[elementPos].addresses != undefined || NULL){
         var addresses_to_delete = clientData[elementPos].addresses;
         for(var i = 0; i < addresses_to_delete.length; i++){
-            var index = addresses.indexOf(addresses_to_delete[i]);
-            addresses.splice(index, 1);
+            var y = addresses.indexOf(addresses_to_delete[i]);
+            addresses.splice(y, 1);
         }
       }
       var temp = message.utf8Data.split(',');
@@ -86,8 +83,10 @@ wsServer.on('request', function(request) {
   connection.on('close', function() {  
       console.log((new Date()) + " Peer "
           + connection.uuid + " disconnected.");
-      // remove user from the list of connected clients
-      clients.splice(index, 1)
+      var elPos = clients.map(function (x) {
+        return x.uuid;
+      }).indexOf(uuid);
+      clients.splice(elPos, 1)
       console.log(addresses)
       console.log( 'connection : ' + connection)
 
