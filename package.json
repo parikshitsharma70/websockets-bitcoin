@@ -5,12 +5,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node sample.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "nodemon": "^1.18.9",
+    "uuid": "^3.3.2",
+    "websocket": "^1.0.28",
     "websockets": "^0.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.10"
   }
 }

@@ -1,4 +1,4 @@
-const url = 'ws://127.0.0.1:8082'
+const url = 'ws://127.0.0.1:1337'
 const connection = new WebSocket(url)
 
 connection.onopen = () => {
