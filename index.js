@@ -151,7 +151,8 @@ function checkAndStream(data) {
       var elementPos = clients.map(function (x) {
         return x.uuid;
       }).indexOf(uuid);
-      // console.log(clients)
+      if(clients[elementPos] != undefined){
       clients[elementPos].send('tx', data);
+      }
     }
 };
