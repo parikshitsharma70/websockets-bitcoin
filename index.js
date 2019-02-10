@@ -77,6 +77,7 @@ wsServer.on('request', function(request) {
         addresses.push(e);
       });
     }
+    connection.send('message', "Successfully received addresses")
     console.log(addresses);
   });
   // user disconnected
