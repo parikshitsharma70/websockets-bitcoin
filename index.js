@@ -123,7 +123,7 @@ socket_client.on(eventToListenTo, function (data) {
 });
 
 function checkAndStream(data) {
-  if(clients != undefined){
+  if(clients.length != 0){
   var vout = data.vout;
   var result = [];
   console.log('### checkAndStream Addresses : ' + addresses);
