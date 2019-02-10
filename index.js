@@ -123,6 +123,7 @@ socket_client.on(eventToListenTo, function (data) {
 });
 
 function checkAndStream(data) {
+  if(clients != undefined){
   var vout = data.vout;
   var result = [];
   console.log('### checkAndStream Addresses : ' + addresses);
@@ -145,11 +146,12 @@ function checkAndStream(data) {
                   uuid = el.uuid;
               }
           }
-      }
+        }
+      });
       var elementPos = clients.map(function (x) {
         return x.uuid;
       }).indexOf(uuid);
       // console.log(clients)
       clients[elementPos].send('tx', data);
-  });
+    }
 };
