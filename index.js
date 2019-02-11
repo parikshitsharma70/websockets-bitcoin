@@ -77,7 +77,7 @@ wsServer.on('request', function(request) {
         addresses.push(e);
       });
     }
-    connection.send({'messageType': "Acknowledge", 'data' : "Successfully received addresses"})
+    connection.send(JSON.stringify({'messageType': "Acknowledge", 'data' : "Successfully received addresses"}))
     // console.log(addresses);
   });
   // user disconnected
@@ -152,9 +152,9 @@ function checkAndStream(data) {
         return x.uuid;
       }).indexOf(uuid);
       if(clients[elementPos] != undefined){
-      clients[elementPos].send({'messageType' : 'tx',
+      clients[elementPos].send(JSON.stringify({'messageType' : 'tx',
                                 'data' : data
-                            });
+                            }));
       }
     }
 };
