@@ -95,7 +95,7 @@ wsServer.on('request', function(request) {
         var elementPos = clientData.map(function (x) {
             return x.uuid;
         }).indexOf(connection.uuid);
-        if(clientData != undefined && clientData[elementPos].addresses != undefined){
+        if(clientData != undefined && elementPos != -1){
             var addresses_to_delete = clientData[elementPos].addresses;
             var del = addresses_to_delete.split(',')
             console.log('delete : ' + del )
