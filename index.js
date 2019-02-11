@@ -126,7 +126,7 @@ function checkAndStream(data) {
   if(clients.length != 0){
   var vout = data.vout;
   var result = [];
-  console.log('### checkAndStream Addresses : ' + addresses);
+  // console.log('### checkAndStream Addresses : ' + addresses);
   for (vouts in vout) {
       for (address in addresses) {
           if (addresses[address] == Object.keys(vout[vouts])) {
