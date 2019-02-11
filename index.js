@@ -39,8 +39,8 @@ var wsServer = new webSocketServer({
 });
 
 wsServer.on('request', function(request) {
-  console.log((new Date()) + ' Connection from origin '
-      + request.origin + '.')
+  // console.log((new Date()) + ' Connection from origin '
+  //     + request.origin + '.')
   var connection = request.accept(null, request.origin); 
   
   connection.uuid = uuid.v4();
@@ -48,8 +48,8 @@ wsServer.on('request', function(request) {
   console.log((new Date()) + ' Connection accepted.');
 
   connection.on('message', function(message) {
-    console.log((new Date()) + " client_uuid : "+ connection.uuid)
-    console.log((new Date()) + " Addresses : " + util.inspect(message, false, null, true))
+    // console.log((new Date()) + " client_uuid : "+ connection.uuid)
+    // console.log((new Date()) + " Addresses : " + util.inspect(message, false, null, true))
     var found = clientData.some(function (e) {
       return e.uuid == connection.uuid;
     });
@@ -77,25 +77,24 @@ wsServer.on('request', function(request) {
         addresses.push(e);
       });
     }
-    connection.send('message', "Successfully received addresses")
-    console.log(addresses);
+    connection.send({'messageType': "Acknowledge", 'data' : "Successfully received addresses"})
+    // console.log(addresses);
   });
   // user disconnected
   connection.on('close', function() {  
-      console.log((new Date()) + " Peer "
-          + connection.uuid + " disconnected.");
+      // console.log((new Date()) + " Peer "
+      //     + connection.uuid + " disconnected.");
       var elPos = clients.map(function (x) {
         return x.uuid;
       }).indexOf(uuid);
       clients.splice(elPos, 1)
-      console.log(addresses)
-      console.log( 'connection : ' + connection)
+      // console.log(addresses)
 
       if (clientData != undefined){
         var elementPos = clientData.map(function (x) {
             return x.uuid;
         }).indexOf(connection.uuid);
-        if(clientData != undefined && elementPos != -1){
+        if(elementPos != -1){
             var addresses_to_delete = clientData[elementPos].addresses;
             var del = addresses_to_delete.split(',')
             console.log('delete : ' + del )
@@ -106,9 +105,9 @@ wsServer.on('request', function(request) {
         }
         clientData.splice(elementPos, 1);
         }      
-      console.log((new Date()) + " Connected clients : " + clients.length)
-      console.log((new Date()) + " Client Data : " + util.inspect(clientData, false, null, true))
-      console.log((new Date()) + " Addresses : " + addresses)
+      // console.log((new Date()) + " Connected clients : " + clients.length)
+      // console.log((new Date()) + " Client Data : " + util.inspect(clientData, false, null, true))
+      // console.log((new Date()) + " Addresses : " + addresses)
     });
   
 });
@@ -119,7 +118,7 @@ socket_client.on('connect', function () {
 });
 
 socket_client.on(eventToListenTo, function (data) {
-  console.log(util.inspect(data, { showHidden: false, depth: null }));
+  // console.log(util.inspect(data, { showHidden: false, depth: null }));
   checkAndStream(data);
 });
 
@@ -135,9 +134,9 @@ function checkAndStream(data) {
           }
       }
   }
-  console.log('### checkAndStream Result : ' + result);
+  console.log('### checkAndStream Result : ' + util.inspect(result, { showHidden: false, depth: null }));
   var uuid;
-  console.log('### checkAndStream clientData : ' + util.inspect(clientData, { showHidden: false, depth: null }));
+  // console.log('### checkAndStream clientData : ' + util.inspect(clientData, { showHidden: false, depth: null }));
   clientData.forEach(function (el) {
       var temp = el.addresses.split(',');
       for (var j = 0; j < temp.length; j++) {
@@ -153,7 +152,9 @@ function checkAndStream(data) {
         return x.uuid;
       }).indexOf(uuid);
       if(clients[elementPos] != undefined){
-      clients[elementPos].send('tx', data);
+      clients[elementPos].send({'messageType' : 'tx',
+                                'data' : data
+                            });
       }
     }
 };
