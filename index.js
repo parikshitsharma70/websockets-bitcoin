@@ -124,13 +124,14 @@ socket_client.on(eventToListenTo, function (data) {
 
 function checkAndStream(data) {
   if(clients.length != 0){
-  var addrs = addresses.split(',')
+  //var addrs = addresses.split(',')
   var vout = data.vout;
   var result = [];
-  // console.log('### checkAndStream Addresses : ' + addresses);
+  console.log('### checkAndStream Addresses : ' + addresses + "type : "+ typeof(addresses));
   for (vouts in vout) {
-      for (address in addrs) {
-          if (addresses[address] == Object.keys(vout[vouts])) {
+      for (address in addresses) {
+	console.log('addr : ' + addresses[address].trim() + 'vout' + vouts[vout])
+          if (addresses[address].trim() == Object.keys(vout[vouts])) {
               result.push({ address: addresses[address], response: data });
           }
       }
