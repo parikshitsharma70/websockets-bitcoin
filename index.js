@@ -124,11 +124,12 @@ socket_client.on(eventToListenTo, function (data) {
 
 function checkAndStream(data) {
   if(clients.length != 0){
+  var addrs = addresses.split(',')
   var vout = data.vout;
   var result = [];
   // console.log('### checkAndStream Addresses : ' + addresses);
   for (vouts in vout) {
-      for (address in addresses) {
+      for (address in addrs) {
           if (addresses[address] == Object.keys(vout[vouts])) {
               result.push({ address: addresses[address], response: data });
           }
