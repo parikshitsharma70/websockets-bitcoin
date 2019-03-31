@@ -1,7 +1,7 @@
 process.title = 'hodler-api'
 const util = require('util')
 var io_client = require('socket.io-client');
-var socket_client = io_client.connect('http://3.17.104.7:3001')
+var socket_client = io_client.connect('http://localhost:3001')
 var eventToListenTo = 'tx';
 var room = 'inv';
 
@@ -28,135 +28,150 @@ var clients = []
  */
 var server = http.createServer(function(request, response) {});
 server.listen(webSocketsServerPort, function() {
-  console.log((new Date()) + " Server is listening on port "
-      + webSocketsServerPort);
+    console.log((new Date()) + " Server is listening on port " +
+        webSocketsServerPort);
 });
 
 
 // WebSocket server
 var wsServer = new webSocketServer({
-  httpServer: server
+    httpServer: server
 });
 
 wsServer.on('request', function(request) {
-  // console.log((new Date()) + ' Connection from origin '
-  //     + request.origin + '.')
-  var connection = request.accept(null, request.origin); 
-  
-  connection.uuid = uuid.v4();
-  clients.push(connection)
-  console.log((new Date()) + ' Connection accepted.');
+    // console.log((new Date()) + ' Connection from origin '
+    //     + request.origin + '.')
+    var connection = request.accept(null, request.origin);
 
-  connection.on('message', function(message) {
-    // console.log((new Date()) + " client_uuid : "+ connection.uuid)
-    // console.log((new Date()) + " Addresses : " + util.inspect(message, false, null, true))
-    var found = clientData.some(function (e) {
-      return e.uuid == connection.uuid;
-    });
-    if(!found){
-      var chunk = {'uuid' : connection.uuid, 'addresses' : message.utf8Data}
-      clientData.push(chunk)
-      var t = message.utf8Data.split(',');
-      t.forEach(function (el){
-      addresses.push(el)
-      })   
-    }
-    else {
-      var elementPos = clientData.map(function (x) {
-        return x.uuid;
-      }).indexOf(connection.uuid);
-      if(clientData[elementPos].addresses != undefined || NULL){
-        var addresses_to_delete = clientData[elementPos].addresses;
-        for(var i = 0; i < addresses_to_delete.length; i++){
-            var y = addresses.indexOf(addresses_to_delete[i]);
-            addresses.splice(y, 1);
-        }
-      }
-      var temp = message.utf8Data.split(',');
-      temp.forEach(function (e) {
-        addresses.push(e);
-      });
-    }
-    connection.send(JSON.stringify({'messageType': "Acknowledge", 'data' : "Successfully received addresses"}))
-    // console.log(addresses);
-  });
-  // user disconnected
-  connection.on('close', function() {  
-      // console.log((new Date()) + " Peer "
-      //     + connection.uuid + " disconnected.");
-      var elPos = clients.map(function (x) {
-        return x.uuid;
-      }).indexOf(uuid);
-      clients.splice(elPos, 1)
-      // console.log(addresses)
+    connection.uuid = uuid.v4();
+    clients.push(connection)
+    console.log((new Date()) + ' Connection accepted.');
 
-      if (clientData != undefined){
-        var elementPos = clientData.map(function (x) {
-            return x.uuid;
-        }).indexOf(connection.uuid);
-        if(elementPos != -1){
-            var addresses_to_delete = clientData[elementPos].addresses;
-            var del = addresses_to_delete.split(',')
-            console.log('delete : ' + del )
-            for(var i = 0; i < del.length; i++){
-                var index = addresses.indexOf(del[i]);
-                addresses.splice(index, 1);
+    connection.on('message', function(message) {
+        // console.log((new Date()) + " client_uuid : "+ connection.uuid)
+        // console.log((new Date()) + " Addresses : " + util.inspect(message, false, null, true))
+        var found = clientData.some(function(e) {
+            return e.uuid == connection.uuid;
+        });
+        if (!found) {
+            var chunk = {
+                'uuid': connection.uuid,
+                'addresses': message.utf8Data
             }
+            clientData.push(chunk)
+            var t = message.utf8Data.split(',');
+            t.forEach(function(el) {
+                addresses.push(el)
+            })
+        } else {
+            var elementPos = clientData.map(function(x) {
+                return x.uuid;
+            }).indexOf(connection.uuid);
+            if (clientData[elementPos].addresses != undefined || NULL) {
+                var addresses_to_delete = clientData[elementPos].addresses;
+                for (var i = 0; i < addresses_to_delete.length; i++) {
+                    var y = addresses.indexOf(addresses_to_delete[i]);
+                    addresses.splice(y, 1);
+                }
+            }
+            var temp = message.utf8Data.split(',');
+            temp.forEach(function(e) {
+                addresses.push(e);
+            });
         }
-        clientData.splice(elementPos, 1);
-        }      
-      // console.log((new Date()) + " Connected clients : " + clients.length)
-      // console.log((new Date()) + " Client Data : " + util.inspect(clientData, false, null, true))
-      // console.log((new Date()) + " Addresses : " + addresses)
+        connection.send(JSON.stringify({
+            'messageType': "Acknowledge",
+            'data': "Successfully received addresses"
+        }))
+        // console.log(addresses);
     });
-  
+    // user disconnected
+    connection.on('close', function() {
+        // console.log((new Date()) + " Peer "
+        //     + connection.uuid + " disconnected.");
+        var elPos = clients.map(function(x) {
+            return x.uuid;
+        }).indexOf(uuid);
+        clients.splice(elPos, 1)
+        // console.log(addresses)
+
+        if (clientData != undefined) {
+            var elementPos = clientData.map(function(x) {
+                return x.uuid;
+            }).indexOf(connection.uuid);
+            if (elementPos != -1) {
+                var addresses_to_delete = clientData[elementPos].addresses;
+                var del = addresses_to_delete.split(',')
+                console.log('delete : ' + del)
+                for (var i = 0; i < del.length; i++) {
+                    var index = addresses.indexOf(del[i]);
+                    addresses.splice(index, 1);
+                }
+            }
+            clientData.splice(elementPos, 1);
+        }
+        // console.log((new Date()) + " Connected clients : " + clients.length)
+        // console.log((new Date()) + " Client Data : " + util.inspect(clientData, false, null, true))
+        // console.log((new Date()) + " Addresses : " + addresses)
+    });
+
 });
 
-socket_client.on('connect', function () {
-  console.log('### socket_client connected to Insight tx room!');
-  socket_client.emit('subscribe', room);
+socket_client.on('connect', function() {
+    console.log('### socket_client connected to Insight tx room!');
+    socket_client.emit('subscribe', room);
 });
 
-socket_client.on(eventToListenTo, function (data) {
-  // console.log(util.inspect(data, { showHidden: false, depth: null }));
-  checkAndStream(data);
+socket_client.on(eventToListenTo, function(data) {
+    // console.log(util.inspect(data, { showHidden: false, depth: null }));
+    checkAndStream(data);
 });
 
 function checkAndStream(data) {
-  if(clients.length != 0){
-  //var addrs = addresses.split(',')
-  var vout = data.vout;
-  var result = [];
-  console.log('### checkAndStream Addresses : ' + addresses + "type : "+ typeof(addresses));
-  for (vouts in vout) {
-      for (address in addresses) {
-	console.log('addr : ' + addresses[address].trim() + 'vout' + vouts[vout])
-          if (addresses[address].trim() == Object.keys(vout[vouts])) {
-              result.push({ address: addresses[address], response: data });
-          }
-      }
-  }
-  console.log('### checkAndStream Result : ' + util.inspect(result, { showHidden: false, depth: null }));
-  var uuid;
-  // console.log('### checkAndStream clientData : ' + util.inspect(clientData, { showHidden: false, depth: null }));
-  clientData.forEach(function (el) {
-      var temp = el.addresses.split(',');
-      for (var j = 0; j < temp.length; j++) {
-          for (var i = 0; i < result.length; i++) {
-              if (temp[j] == result[i].address) {
-                  var x = { uuid: el.uuid, address: temp[j] };
-                  uuid = el.uuid;
-              }
-          }
+    if (clients.length != 0) {
+        //var addrs = addresses.split(',')
+        var vout = data.vout;
+        var result = [];
+        console.log('### checkAndStream Addresses : ' + addresses + "type : " + typeof(addresses));
+        for (vouts in vout) {
+            for (address in addresses) {
+                console.log('addr : ' + addresses[address].trim() + 'vout' + vouts[vout])
+                if (addresses[address].trim() == Object.keys(vout[vouts])) {
+                    result.push({
+                        address: addresses[address],
+                        response: data
+                    });
+                }
+            }
         }
-      });
-      var elementPos = clients.map(function (x) {
-        return x.uuid;
-      }).indexOf(uuid);
-      if(clients[elementPos] != undefined){
-      clients[elementPos].send(JSON.stringify({'messageType' : 'tx',
-                                'data' : data
-                            }));
-      }
+        console.log('### checkAndStream Result : ' + util.inspect(result, {
+            showHidden: false,
+            depth: null
+        }));
+        var uuid;
+        // console.log('### checkAndStream clientData : ' + util.inspect(clientData, { showHidden: false, depth: null }));
+        clientData.forEach(function(el) {
+            var temp = el.addresses.split(',');
+            for (var j = 0; j < temp.length; j++) {
+                for (var i = 0; i < result.length; i++) {
+                    if (temp[j] == result[i].address) {
+                        var x = {
+                            uuid: el.uuid,
+                            address: temp[j]
+                        };
+                        uuid = el.uuid;
+                    }
+                }
+            }
+        });
+        var elementPos = clients.map(function(x) {
+            return x.uuid;
+        }).indexOf(uuid);
+        if (clients[elementPos] != undefined) {
+            clients[elementPos].send(JSON.stringify({
+                'messageType': 'tx',
+                'data': data
+            }));
+        }
     }
 };
